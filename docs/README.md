@@ -7,6 +7,7 @@ Project docs for the Headless CMS Admin Panel. Source-of-truth planning lives at
 | [data-model.md](./data-model.md)             | The three tables, id-keyed storage, app-side integrity        |
 | [schema-evolution.md](./schema-evolution.md) | Feature D — MigrationPlan pipeline, coercion rules, repair     |
 | [api.md](./api.md)                           | REST + read API + socket.io event contract                    |
+| [migration.md](./migration.md)               | Feature D — pipeline impl, endpoints, frontend flow, invariants |
 | [decisions.md](./decisions.md)               | Architecture decision log (ADRs) — open + resolved choices     |
 
 ## Adding docs

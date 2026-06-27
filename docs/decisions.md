@@ -41,6 +41,13 @@ Format: **Status** · **Context** · **Decision** · **Consequence**.
 **Decision:** `apps/backend/src/lib/realtime.ts` holds a module-scoped `_io` reference, initialised once via `initRealtime(io)` called in `index.ts` after socket server creation. Routes import `emit()` from this module.
 **Consequence:** Single initialisation point, no circular deps, easy to extend for M5's `apply` endpoint.
 
+## ADR-007 — Manual repair state is ephemeral (router state, no DB column)
+
+**Status:** Resolved (M5)
+**Context:** After `apply`, entries with `manual` cells need to surface in a repair UI. Options: (a) persist a `__manual__` sentinel in `entries.data`, (b) add a `pending_repairs` DB table, (c) pass the `MigrationPlan` from the apply response via React Router `location.state`.
+**Decision:** Option (c) — the apply response returns the full `MigrationPlan`; the frontend navigates to `/schemas/:id/repair` with `state: { plan }`. No DB column, no sentinel key.
+**Consequence:** Repair state is session-scoped. If the user navigates away mid-repair, state is lost — but the underlying entry values are still wrong and classifiable again on the next plan run. Keeps the data model clean (no migration-bookkeeping pollution in `entries.data`).
+
 ---
 
 ## ADR-005 — Mid-edit collision behavior
