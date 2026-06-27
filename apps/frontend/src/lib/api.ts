@@ -1,3 +1,5 @@
+import type { Entry, EntryData } from '@cms/shared'
+
 // In dev, requests go through the Vite proxy (see vite.config.ts). VITE_API_URL
 // overrides the base for non-proxied/prod use.
 const BASE = import.meta.env.VITE_API_URL ?? ''
@@ -44,4 +46,26 @@ export async function apiDelete<T>(path: string): Promise<T> {
   }
   const json = (await res.json()) as { data: T }
   return json.data
+}
+
+// --- Entry helpers ---
+
+export function listEntries(schemaSlug: string): Promise<Entry[]> {
+  return apiGet<{ data: Entry[] }>(`/api/entries?schema=${encodeURIComponent(schemaSlug)}`).then((r) => r.data)
+}
+
+export function getEntry(id: string): Promise<Entry> {
+  return apiGet<{ data: Entry }>(`/api/entries/${id}`).then((r) => r.data)
+}
+
+export function createEntry(schemaId: string, data: EntryData): Promise<Entry> {
+  return apiPost<Entry>('/api/entries', { schemaId, data })
+}
+
+export function updateEntry(id: string, data: EntryData): Promise<Entry> {
+  return apiPatch<Entry>(`/api/entries/${id}`, { data })
+}
+
+export function deleteEntry(id: string): Promise<{ id: string }> {
+  return apiDelete<{ id: string }>(`/api/entries/${id}`)
 }
