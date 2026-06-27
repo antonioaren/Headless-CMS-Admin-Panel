@@ -34,6 +34,13 @@ Format: **Status** · **Context** · **Decision** · **Consequence**.
 **Decision:** All mutations flow through `diff → classify → MigrationPlan → apply`.
 **Consequence:** plan = dry run = preview, reused everywhere. One mechanism to build and explain.
 
+## ADR-006 — socket.io emit via module singleton, not Fastify plugin
+
+**Status:** Resolved (M4)
+**Context:** Routes need to emit socket events, but `io` is created in `index.ts` after routes are registered. Passing `io` as a Fastify plugin option is verbose; re-exporting from `index.ts` risks circular imports.
+**Decision:** `apps/backend/src/lib/realtime.ts` holds a module-scoped `_io` reference, initialised once via `initRealtime(io)` called in `index.ts` after socket server creation. Routes import `emit()` from this module.
+**Consequence:** Single initialisation point, no circular deps, easy to extend for M5's `apply` endpoint.
+
 ---
 
 ## ADR-005 — Mid-edit collision behavior
