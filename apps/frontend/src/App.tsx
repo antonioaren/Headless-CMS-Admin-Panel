@@ -1,3 +1,4 @@
+import { useRealtimeSync } from '@/hooks/useRealtimeSync'
 import EntryFormPage from '@/pages/EntryFormPage/EntryFormPage'
 import EntryListPage from '@/pages/EntryListPage/EntryListPage'
 import SchemaFormPage from '@/pages/SchemaFormPage/SchemaFormPage'
@@ -6,6 +7,8 @@ import { Navigate, Route, Routes } from 'react-router-dom'
 
 // BrowserRouter is mounted in main.tsx — only Routes live here.
 export function App() {
+  useRealtimeSync()
+
   return (
     <Routes>
       <Route path="/" element={<Navigate to="/schemas" replace />} />
