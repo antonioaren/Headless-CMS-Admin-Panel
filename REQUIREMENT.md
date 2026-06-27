@@ -171,6 +171,7 @@ PRD §1 locks the runtime stack but never specs lint/format. This requirement cl
 
 - **MUST** A single linter+formatter is configured at the monorepo root: **Biome** (`biome.json`).
 - **MUST** Root scripts `lint` (`biome check .`) and `format` (`biome format --write .`) exist and pass clean.
+- **MUST** Frontend styling avoids inline JSX styles; use shared global SCSS/CSS classes instead. Tailwind may be adopted later only as an explicit tooling decision.
 - **MUST** Format rules match house style: lineWidth 120, single quotes, semicolons as-needed, no trailing commas.
 - **MUST** TypeScript config is permissive per house rules (`strict: false`, `noImplicitAny: false`); `@/*` → `src/*` alias per app.
   - GIVEN a clean checkout
