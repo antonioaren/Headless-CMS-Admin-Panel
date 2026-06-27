@@ -1,22 +1,15 @@
-import { apiGet } from '@/lib/api'
-import { useQuery } from '@tanstack/react-query'
+import SchemaFormPage from '@/pages/SchemaFormPage'
+import SchemaListPage from '@/pages/SchemaListPage'
+import { Navigate, Route, Routes } from 'react-router-dom'
 
-// M0 wiring proof: hits the backend /health through the Vite proxy and renders status.
-// No features — M1+ add real routes under the Router already mounted in main.tsx.
+// BrowserRouter is mounted in main.tsx — only Routes live here.
 export function App() {
-  const { data, isLoading, isError } = useQuery({
-    queryKey: ['health'],
-    queryFn: () => apiGet<{ ok: boolean }>('/health')
-  })
-
-  const status = isLoading ? 'checking…' : isError ? 'error' : data?.ok ? 'ok' : 'unknown'
-
   return (
-    <main style={{ fontFamily: 'system-ui', padding: 32 }}>
-      <h1>Headless CMS Admin</h1>
-      <p>
-        backend: <strong>{status}</strong>
-      </p>
-    </main>
+    <Routes>
+      <Route path="/" element={<Navigate to="/schemas" replace />} />
+      <Route path="/schemas" element={<SchemaListPage />} />
+      <Route path="/schemas/new" element={<SchemaFormPage />} />
+      <Route path="/schemas/:id/edit" element={<SchemaFormPage />} />
+    </Routes>
   )
 }

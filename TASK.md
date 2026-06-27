@@ -22,15 +22,15 @@ Check items as completed. `→ REQ-x` links the requirement each task satisfies.
 
 ## M1 — Schema builder / Feature A (→ REQ-A)
 
-- [ ] Backend `GET /api/schemas` — list schemas + fields
-- [ ] Backend `POST /api/schemas` — create (display_name + ordered typed fields)
-- [ ] Backend `PATCH /api/schemas/:id` — rename schema / reorder fields (non-evolving edits)
-- [ ] Backend `DELETE /api/schemas/:id` — cascade entries
-- [ ] Frontend schema list + create/edit form (name + fields)
-- [ ] Field editor: type picker (text/number/boolean/date/reference), required toggle, position
-- [ ] Reference field: pick `reference_schema_id` (target schema)
-- [ ] Add / remove / reorder fields in UI
-- [ ] Delete-schema confirmation warning (cascade)
+- [x] Backend `GET /api/schemas` — list schemas + fields
+- [x] Backend `POST /api/schemas` — create (display_name + ordered typed fields)
+- [x] Backend `PATCH /api/schemas/:id` — rename schema / reorder fields (non-evolving edits)
+- [x] Backend `DELETE /api/schemas/:id` — cascade entries
+- [x] Frontend schema list + create/edit form (name + fields)
+- [x] Field editor: type picker (text/number/boolean/date/reference), required toggle, position
+- [x] Reference field: pick `reference_schema_id` (target schema)
+- [x] Add / remove / reorder fields in UI
+- [x] Delete-schema confirmation warning (cascade)
 - [ ] Verify: create `Person`, then `Car` with `owner → Person`; reorder/add/remove fields
 
 ## M2 — Dynamic entry editor / Feature B (→ REQ-B)

@@ -6,6 +6,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 @.claude/rules/architecture-invariants.md
 @.claude/rules/workflow.md
+@.claude/rules/commit-convention.md
+@.claude/rules/frontend-styling.md
 
 ## What this is
 
