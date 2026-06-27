@@ -68,17 +68,17 @@ Check items as completed. `→ REQ-x` links the requirement each task satisfies.
 
 ## M5 — Schema evolution / Feature D ⭐ (→ REQ-D) — the headline
 
-- [ ] `diff(currentSchema, proposedSchema)` → `changes[]` (rename|delete|retype|require|retarget, from/to)
-- [ ] Entry scan: classify each affected cell → `ok | auto | manual`
-- [ ] Per-cell coercion rules (REQ-D.3): text→number, number→text, any→boolean, any→date, make-required, delete, retarget
-- [ ] Build `MigrationPlan` (changes + impact[] + summary{ok,auto,manual,destructive}) — PRD §5.3 type
-- [ ] Backend `POST /api/schemas/:id/plan` — dry run, returns MigrationPlan, NO writes
-- [ ] Backend `POST /api/schemas/:id/apply` — single transaction: bump version, write auto values, flag manual cells
-- [ ] Rename = pure label edit, zero entry migration (verify no data touched)
-- [ ] Delete field: destructive warning + drop/archive key into config
-- [ ] Frontend migration preview UI: render summary + affected-entry list from plan
-- [ ] Confirm gate: `apply` only fires on explicit confirm
-- [ ] Repair UI: surface `manual` entries, edit/re-pick/default → `PATCH /api/entries/:id`
+- [x] `diff(currentSchema, proposedSchema)` → `changes[]` (rename|delete|retype|require|retarget, from/to)
+- [x] Entry scan: classify each affected cell → `ok | auto | manual`
+- [x] Per-cell coercion rules (REQ-D.3): text→number, number→text, any→boolean, any→date, make-required, delete, retarget
+- [x] Build `MigrationPlan` (changes + impact[] + summary{ok,auto,manual,destructive}) — PRD §5.3 type
+- [x] Backend `POST /api/schemas/:id/plan` — dry run, returns MigrationPlan, NO writes
+- [x] Backend `POST /api/schemas/:id/apply` — single transaction: bump version, write auto values, flag manual cells
+- [x] Rename = pure label edit, zero entry migration (verify no data touched)
+- [x] Delete field: destructive warning + drop/archive key into config
+- [x] Frontend migration preview UI: render summary + affected-entry list from plan
+- [x] Confirm gate: `apply` only fires on explicit confirm
+- [x] Repair UI: surface `manual` entries, edit/re-pick/default → `PATCH /api/entries/:id`
 - [ ] Verify: retype `year` text→number → `"2024"` auto=2024, `"vintage"`/`"n/a"` flagged manual, repairable
 
 ## M6 — Mid-edit collision (D×C) + polish (→ REQ-D.5, REQ-C)
