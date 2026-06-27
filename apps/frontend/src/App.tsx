@@ -1,3 +1,5 @@
+import EntryFormPage from '@/pages/EntryFormPage'
+import EntryListPage from '@/pages/EntryListPage'
 import SchemaFormPage from '@/pages/SchemaFormPage'
 import SchemaListPage from '@/pages/SchemaListPage'
 import { Navigate, Route, Routes } from 'react-router-dom'
@@ -10,6 +12,9 @@ export function App() {
       <Route path="/schemas" element={<SchemaListPage />} />
       <Route path="/schemas/new" element={<SchemaFormPage />} />
       <Route path="/schemas/:id/edit" element={<SchemaFormPage />} />
+      <Route path="/schemas/:schemaId/entries" element={<EntryListPage />} />
+      <Route path="/schemas/:schemaId/entries/new" element={<EntryFormPage />} />
+      <Route path="/schemas/:schemaId/entries/:entryId/edit" element={<EntryFormPage />} />
     </Routes>
   )
 }
