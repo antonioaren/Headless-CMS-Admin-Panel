@@ -2,14 +2,8 @@
   "hooks": {
     "SessionEnd": [
       {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "\"$CLAUDE_PROJECT_DIR/.claude/hooks/log-session.sh\"",
-            "timeout": 120
-          }
-        ]
-      }
+			"hooks": []
+		}
     ]
   }
 }

@@ -2,6 +2,8 @@
 # .claude/hooks/log-session.sh
 # SessionEnd hook: summarizes a Claude Code session into AI_USAGE_LOG.md
 
+exit 1
+
 INPUT=$(cat)
 TRANSCRIPT=$(echo "$INPUT" | jq -r '.transcript_path')
 SESSION_ID=$(echo "$INPUT" | jq -r '.session_id')
