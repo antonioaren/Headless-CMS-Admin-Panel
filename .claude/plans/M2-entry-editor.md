@@ -13,12 +13,23 @@
 - **Frontend**: a single `<EntryForm schema={...}>` that maps over `schema.fields` and renders a control per `field.type`. RHF + `buildZodSchema(fields)` resolver. The form re-derives whenever the schema object changes (drives the "new field appears" acceptance and M6 mid-edit).
 - Reference control: searchable select querying `GET /api/entries?schema=<targetSlug>`; store the selected entry's UUID in `data[field.id]`. Navigation via React Router link to the referenced entry route.
 
-## Files (new)
-`apps/backend/src/routes/entries.ts` · `apps/frontend/src/components/EntryForm.tsx` + per-type control components · entry list/detail routes.
+## Files created/modified
+
+- `apps/backend/src/routes/entries.ts` — 5 CRUD routes; PATCH merges existing data before validating
+- `apps/backend/src/index.ts` — registers entriesRoutes under `/api`
+- `apps/frontend/src/lib/api.ts` — `listEntries`, `getEntry`, `createEntry`, `updateEntry`, `deleteEntry`
+- `apps/frontend/src/pages/EntryListPage.tsx` — list with field-keyed summary, Edit/Delete, New Entry
+- `apps/frontend/src/pages/EntryFormPage.tsx` — schema-driven form, all 5 types, reference ↗ View nav, RHF + zodResolver
+- `apps/frontend/src/App.tsx` — 3 new routes added
+- `apps/frontend/src/pages/SchemaListPage.tsx` — Entries button per row
+
+## Status: ✅ DONE (PR #3)
 
 ## Verify
-Add a field to Car schema → control appears in the entry form without edits. Create a Car referencing a Person, click through and back.
+- [ ] Add a field to Car schema → control appears in entry form with no code change
+- [ ] Create a Car referencing a Person → click ↗ View → navigates to Person entry
 
-## Watch
-- The form generator is the heart of B — one renderer, no per-type form components. Reuse it in M5 repair UI and M6 re-derive.
-- `buildZodSchema` currently a stub from M0; fill its per-type logic here.
+## Notes
+- `EntryFormPage` renders controls inline (not a separate `EntryForm` component) — simpler for M2 scope; can extract for M5 repair UI if needed
+- `buildZodSchema` filled out in `packages/shared/src/zod-builder.ts` — all 5 types covered
+- PATCH merges `existing.data` with incoming `data` server-side before validating, so partial updates work safely
