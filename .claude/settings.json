@@ -2,8 +2,8 @@
   "hooks": {
     "SessionEnd": [
       {
-			"hooks": []
-		}
+        "hooks": []
+      }
     ]
   }
 }
