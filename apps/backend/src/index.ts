@@ -2,6 +2,7 @@ import { env } from '@/env'
 import cors from '@fastify/cors'
 import Fastify from 'fastify'
 import { Server as SocketServer } from 'socket.io'
+import { initRealtime } from './lib/realtime.js'
 import contentRoutes from './routes/content.js'
 import entriesRoutes from './routes/entries.js'
 import schemasRoutes from './routes/schemas.js'
@@ -18,9 +19,10 @@ await app.register(contentRoutes, { prefix: '/api' })
 
 await app.listen({ port: env.PORT, host: '0.0.0.0' })
 
-// socket.io shares the Fastify HTTP server. No events emitted yet — wiring lands in M4
-// (server emits only AFTER a successful DB write; payloads stay thin).
+// socket.io shares the Fastify HTTP server. Emits only after successful DB writes; payloads stay thin.
 const io = new SocketServer(app.server, { cors: { origin: env.CORS_ORIGIN } })
+
+initRealtime(io)
 
 io.on('connection', (socket) => {
   app.log.info({ id: socket.id }, 'socket connected')

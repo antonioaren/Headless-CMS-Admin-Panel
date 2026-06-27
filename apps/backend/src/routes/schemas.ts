@@ -1,5 +1,6 @@
 import { db } from '@/db/client.js'
 import { entries, fields, schemas } from '@/db/schema.js'
+import { emit } from '@/lib/realtime.js'
 import { asc, eq, inArray } from 'drizzle-orm'
 import type { FastifyPluginAsync } from 'fastify'
 import { z } from 'zod'
@@ -110,6 +111,7 @@ const schemasRoutes: FastifyPluginAsync = async (fastify) => {
         return { ...schema, fields: insertedFields }
       })
 
+      emit('schema.created', { id: result.id, schemaId: result.id, version: result.version })
       return reply.status(201).send({ data: result })
     } catch (err) {
       fastify.log.error(err)
@@ -192,6 +194,7 @@ const schemasRoutes: FastifyPluginAsync = async (fastify) => {
         return reply.status(404).send({ error: 'Schema not found' })
       }
 
+      emit('schema.updated', { id: result.id, schemaId: result.id, version: result.version })
       return reply.send({ data: result })
     } catch (err) {
       fastify.log.error(err)
@@ -219,6 +222,7 @@ const schemasRoutes: FastifyPluginAsync = async (fastify) => {
         return reply.status(404).send({ error: 'Schema not found' })
       }
 
+      emit('schema.deleted', { id: result.id, schemaId: result.id })
       return reply.send({ data: result })
     } catch (err) {
       fastify.log.error(err)

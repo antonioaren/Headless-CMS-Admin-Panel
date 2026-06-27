@@ -1,5 +1,6 @@
 import { db } from '@/db/client.js'
 import { entries, fields, schemas } from '@/db/schema.js'
+import { emit } from '@/lib/realtime.js'
 import { buildZodSchema } from '@cms/shared'
 import { asc, eq } from 'drizzle-orm'
 import type { FastifyPluginAsync } from 'fastify'
@@ -50,6 +51,7 @@ const entriesRoutes: FastifyPluginAsync = async (fastify) => {
 
       const [entry] = await db.insert(entries).values({ schemaId: body.schemaId, data: parsed.data }).returning()
 
+      emit('entry.created', { id: entry.id, schemaId: entry.schemaId })
       return reply.status(201).send({ data: entry })
     } catch (err) {
       fastify.log.error(err)
@@ -108,6 +110,7 @@ const entriesRoutes: FastifyPluginAsync = async (fastify) => {
         .where(eq(entries.id, id))
         .returning()
 
+      emit('entry.updated', { id: updated.id, schemaId: updated.schemaId })
       return reply.send({ data: updated })
     } catch (err) {
       fastify.log.error(err)
@@ -126,6 +129,7 @@ const entriesRoutes: FastifyPluginAsync = async (fastify) => {
       }
 
       await db.delete(entries).where(eq(entries.id, id))
+      emit('entry.deleted', { id: existing.id, schemaId: existing.schemaId })
       return reply.send({ data: { id } })
     } catch (err) {
       fastify.log.error(err)
