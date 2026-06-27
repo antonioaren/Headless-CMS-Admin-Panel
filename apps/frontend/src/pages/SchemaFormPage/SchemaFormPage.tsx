@@ -1,8 +1,10 @@
 import { FieldEditor } from '@/components/FieldEditor/FieldEditor'
-import { apiGet, apiPatch, apiPost } from '@/lib/api'
-import type { Schema } from '@cms/shared'
+import { MigrationPreviewModal } from '@/features/migration/MigrationPreviewModal'
+import { useApplyMutation, usePlanMutation } from '@/features/migration/useMigrationPlan'
+import { apiGet, apiPost } from '@/lib/api'
+import type { MigrationPlan, Schema } from '@cms/shared'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useFieldArray, useForm } from 'react-hook-form'
 import { useNavigate, useParams } from 'react-router-dom'
 import {
@@ -38,6 +40,11 @@ export default function SchemaFormPage() {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
 
+  // Migration modal state
+  const [migrationPlan, setMigrationPlan] = useState<MigrationPlan | null>(null)
+  const [pendingValues, setPendingValues] = useState<FormValues | null>(null)
+  const [showModal, setShowModal] = useState(false)
+
   const { data: schema } = useQuery({
     queryKey: ['schema', id],
     queryFn: () =>
@@ -59,7 +66,6 @@ export default function SchemaFormPage() {
 
   const { fields, append, remove, swap } = useFieldArray({ control, name: 'fields' })
 
-  // Populate form when editing
   useEffect(() => {
     if (schema) {
       reset({
@@ -76,6 +82,9 @@ export default function SchemaFormPage() {
     }
   }, [schema, reset])
 
+  const planMutation = usePlanMutation(id ?? '')
+  const applyMutation = useApplyMutation(id ?? '')
+
   const createMutation = useMutation({
     mutationFn: (values: FormValues) =>
       apiPost<Schema>('/api/schemas', {
@@ -88,28 +97,55 @@ export default function SchemaFormPage() {
     }
   })
 
-  const updateMutation = useMutation({
-    mutationFn: (values: FormValues) =>
-      apiPatch<Schema>(`/api/schemas/${id}`, {
-        displayName: values.displayName,
-        fields: values.fields.map((f, i) => ({ ...f, position: i }))
-      }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['schemas'] })
-      navigate('/schemas')
+  function buildMigrationBody(values: FormValues) {
+    return {
+      displayName: values.displayName,
+      fields: values.fields.map((f, i) => ({ ...f, position: i }))
     }
-  })
+  }
 
   function onSubmit(values: FormValues) {
     if (isEdit) {
-      updateMutation.mutate(values)
+      // In edit mode: call plan first, then show modal
+      const body = buildMigrationBody(values)
+      setPendingValues(values)
+      planMutation.mutate(body, {
+        onSuccess: (plan) => {
+          setMigrationPlan(plan)
+          setShowModal(true)
+        }
+      })
     } else {
       createMutation.mutate(values)
     }
   }
 
-  const isPending = createMutation.isPending || updateMutation.isPending
-  const error = createMutation.error?.message ?? updateMutation.error?.message
+  function handleModalConfirm() {
+    if (!pendingValues || !id) return
+    const body = buildMigrationBody(pendingValues)
+    applyMutation.mutate(body, {
+      onSuccess: (result) => {
+        setShowModal(false)
+        queryClient.invalidateQueries({ queryKey: ['schemas'] })
+
+        const plan = result.plan
+        if (plan.summary.manual > 0) {
+          navigate(`/schemas/${id}/repair`, { state: { plan } })
+        } else {
+          navigate('/schemas')
+        }
+      }
+    })
+  }
+
+  function handleModalCancel() {
+    setShowModal(false)
+    setMigrationPlan(null)
+    setPendingValues(null)
+  }
+
+  const isPending = createMutation.isPending || planMutation.isPending || applyMutation.isPending
+  const error = createMutation.error?.message ?? planMutation.error?.message ?? applyMutation.error?.message
 
   return (
     <main css={pageShellStyles}>
@@ -188,7 +224,7 @@ export default function SchemaFormPage() {
             disabled={isPending}
             className="inline-flex items-center justify-center rounded-md border border-blue-600 bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-40"
           >
-            {isPending ? 'Saving…' : isEdit ? 'Save changes' : 'Create schema'}
+            {isPending ? (isEdit ? 'Computing plan…' : 'Saving…') : isEdit ? 'Preview changes' : 'Create schema'}
           </button>
           <button
             type="button"
@@ -199,6 +235,16 @@ export default function SchemaFormPage() {
           </button>
         </div>
       </form>
+
+      {showModal && migrationPlan && pendingValues && (
+        <MigrationPreviewModal
+          plan={migrationPlan}
+          proposedFields={pendingValues.fields}
+          onConfirm={handleModalConfirm}
+          onCancel={handleModalCancel}
+          isPending={applyMutation.isPending}
+        />
+      )}
     </main>
   )
 }
