@@ -5,6 +5,7 @@ import { Server as SocketServer } from 'socket.io'
 import { initRealtime } from './lib/realtime.js'
 import contentRoutes from './routes/content.js'
 import entriesRoutes from './routes/entries.js'
+import migrationsRoutes from './routes/migrations.js'
 import schemasRoutes from './routes/schemas.js'
 
 const app = Fastify({ logger: true })
@@ -16,6 +17,7 @@ app.get('/health', async () => ({ ok: true }))
 await app.register(schemasRoutes, { prefix: '/api' })
 await app.register(entriesRoutes, { prefix: '/api' })
 await app.register(contentRoutes, { prefix: '/api' })
+await app.register(migrationsRoutes, { prefix: '/api' })
 
 await app.listen({ port: env.PORT, host: '0.0.0.0' })
 
