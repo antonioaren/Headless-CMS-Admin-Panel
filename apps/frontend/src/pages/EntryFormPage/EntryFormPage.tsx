@@ -1,37 +1,12 @@
 import { apiGet, createEntry, getEntry, listEntries, updateEntry } from '@/lib/api'
 import type { Entry, EntryData, Field, Schema } from '@cms/shared'
 import { buildZodSchema } from '@cms/shared'
-import { css } from '@emotion/react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { useNavigate, useParams } from 'react-router-dom'
-
-const pageShellStyles = css({
-  maxWidth: 640,
-  margin: '0 auto',
-  padding: 32
-})
-
-const fieldGroupStyles = css({
-  display: 'flex',
-  flexDirection: 'column',
-  gap: 20,
-  marginBottom: 24
-})
-
-const fieldRowStyles = css({
-  display: 'flex',
-  alignItems: 'center',
-  gap: 8
-})
-
-const formActionsStyles = css({
-  display: 'flex',
-  gap: 12,
-  marginTop: 24
-})
+import { fieldGroupStyles, fieldRowStyles, formActionsStyles, pageShellStyles } from './EntryFormPage.style'
 
 const inputClassName =
   'w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-950 shadow-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100'

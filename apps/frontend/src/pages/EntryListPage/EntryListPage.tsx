@@ -1,48 +1,14 @@
 import { apiGet, deleteEntry, listEntries } from '@/lib/api'
 import type { Entry, Field, Schema } from '@cms/shared'
-import { css } from '@emotion/react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useNavigate, useParams } from 'react-router-dom'
-
-const pageShellStyles = css({
-  maxWidth: 768,
-  margin: '0 auto',
-  padding: 32
-})
-
-const pageHeaderStyles = css({
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'space-between',
-  gap: 16,
-  marginBottom: 24
-})
-
-const entryListStyles = css({
-  display: 'flex',
-  flexDirection: 'column',
-  gap: 12,
-  padding: 0,
-  margin: 0,
-  listStyle: 'none'
-})
-
-const entryCardStyles = css({
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'space-between',
-  gap: 16,
-  padding: '16px 20px',
-  borderRadius: 8,
-  border: '1px solid #e2e8f0',
-  background: '#fff',
-  boxShadow: '0 1px 2px 0 rgba(0,0,0,0.04)'
-})
-
-const entryActionsStyles = css({
-  display: 'flex',
-  gap: 8
-})
+import {
+  entryActionsStyles,
+  entryCardStyles,
+  entryListStyles,
+  pageHeaderStyles,
+  pageShellStyles
+} from './EntryListPage.style'
 
 /** Summarise an entry's data using the first 3 fields resolved by field.key */
 function summariseEntry(entry: Entry, fields: Field[]): string {
