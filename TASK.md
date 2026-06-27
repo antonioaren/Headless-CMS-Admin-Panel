@@ -57,12 +57,12 @@ Check items as completed. `→ REQ-x` links the requirement each task satisfies.
 - [x] Comment marking where API-key / auth middleware would slot in
 - [x] Verify: `GET /api/content/car` returns cars with human-readable names + resolved owner
 
-## M4 — Realtime / Feature C (→ REQ-C)
+## M4 — Realtime / Feature C (→ REQ-C) ✅
 
-- [ ] socket.io server: emit AFTER successful DB write only (thin payload: id + schemaId + version)
-- [ ] Wire emit into every mutation (schema create/update/delete, entry create/update/delete)
-- [ ] Frontend socket client: subscribe to events
-- [ ] On event → patch/invalidate TanStack Query cache (never trust payload as source of truth)
+- [x] socket.io server: emit AFTER successful DB write only (thin payload: id + schemaId + version)
+- [x] Wire emit into every mutation (schema create/update/delete, entry create/update/delete)
+- [x] Frontend socket client: subscribe to events
+- [x] On event → patch/invalidate TanStack Query cache (never trust payload as source of truth)
 - [ ] Verify: 2 windows — create entry in A → appears live in B's list
 - [ ] Verify: rename field in A → B's open form reacts (hands to M6)
 
