@@ -31,21 +31,22 @@ Check items as completed. `→ REQ-x` links the requirement each task satisfies.
 - [x] Reference field: pick `reference_schema_id` (target schema)
 - [x] Add / remove / reorder fields in UI
 - [x] Delete-schema confirmation warning (cascade)
-- [ ] Verify: create `Person`, then `Car` with `owner → Person`; reorder/add/remove fields
+- [x] Verify: create `Person`, then `Car` with `owner → Person`; reorder/add/remove fields
 
 ## M2 — Dynamic entry editor / Feature B (→ REQ-B)
 
-- [ ] Backend `GET /api/entries?schema=:slug` — list
-- [ ] Backend `POST /api/entries` — create
-- [ ] Backend `GET /api/entries/:id` — one
-- [ ] Backend `PATCH /api/entries/:id` — update (also used for manual repairs)
-- [ ] Backend `DELETE /api/entries/:id` — delete
-- [ ] Server-side validation via `buildZodSchema(fields)` (shared contract)
-- [ ] Frontend: schema-driven form generator (renders controls from field defs, keyed by field.id)
-- [ ] Controls: text input, number, checkbox, date picker, reference = searchable select of target entries
-- [ ] RHF + Zod (`buildZodSchema`) client validation
-- [ ] Reference navigation: click owner → jump to Person entry, and back (React Router)
-- [ ] Verify: add field to `Car` schema → new control appears in entry form, no code change
+- [x] Backend `GET /api/entries?schema=:slug` — list
+- [x] Backend `POST /api/entries` — create
+- [x] Backend `GET /api/entries/:id` — one
+- [x] Backend `PATCH /api/entries/:id` — update (also used for manual repairs)
+- [x] Backend `DELETE /api/entries/:id` — delete
+- [x] Server-side validation via `buildZodSchema(fields)` (shared contract)
+- [x] Frontend: schema-driven form generator (renders controls from field defs, keyed by field.id)
+- [~] Controls: text input, number, checkbox, date picker, reference select of target entries (searchable select still pending)
+- [x] RHF + Zod (`buildZodSchema`) client validation
+- [~] Reference navigation: referenced-entry jump exists; return path still goes back to the entry list, not the source entry context
+- [x] Frontend pages/components colocated into feature folders with `*.style.tsx` and smoke specs
+- [x] Verify: add field to `Car` schema → new control appears in entry form, no code change
 
 ## M3 — Read API / Feature E (→ REQ-E) — cheap, builds the resolver
 
@@ -93,7 +94,7 @@ Check items as completed. `→ REQ-x` links the requirement each task satisfies.
 
 - [ ] README: install + run, env, dev commands — no questions asked
 - [ ] Walkthrough (<10 min video OR <15 slides), leads with D pipeline; architecture, data model, realtime, evolution, trade-offs, next
-- [ ] AI session log: chat export / prompts / screenshots
+- [x] AI session log: chat export / prompts / screenshots
 - [ ] Final pass: confirm all four deliverables present
 
 ## M-SEED — Seed data (→ REQ-SEED) — fill during M0, verify usable by M5
