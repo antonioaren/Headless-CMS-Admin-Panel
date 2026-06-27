@@ -1,11 +1,18 @@
-import { FieldEditor } from '@/components/FieldEditor'
+import { FieldEditor } from '@/components/FieldEditor/FieldEditor'
 import { apiGet, apiPatch, apiPost } from '@/lib/api'
 import type { Schema } from '@cms/shared'
-import { css } from '@emotion/react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useEffect } from 'react'
 import { useFieldArray, useForm } from 'react-hook-form'
 import { useNavigate, useParams } from 'react-router-dom'
+import {
+  fieldReorderControlsStyles,
+  fieldRowMainStyles,
+  fieldRowStyles,
+  fieldStackStyles,
+  pageShellStyles,
+  sectionHeaderStyles
+} from './SchemaFormPage.style'
 
 interface FieldFormValue {
   id?: string
@@ -20,43 +27,6 @@ interface FormValues {
   displayName: string
   fields: FieldFormValue[]
 }
-
-const pageShellStyles = css({
-  maxWidth: 768,
-  margin: '0 auto',
-  padding: 32
-})
-
-const sectionHeaderStyles = css({
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'space-between',
-  gap: 12,
-  marginBottom: 8
-})
-
-const fieldStackStyles = css({
-  display: 'flex',
-  flexDirection: 'column',
-  gap: 12
-})
-
-const fieldRowStyles = css({
-  display: 'flex',
-  alignItems: 'flex-end',
-  gap: 4
-})
-
-const fieldRowMainStyles = css({
-  flex: 1
-})
-
-const fieldReorderControlsStyles = css({
-  display: 'flex',
-  flexDirection: 'column',
-  gap: 2,
-  paddingBottom: 8
-})
 
 function defaultField(position: number): FieldFormValue {
   return { key: '', type: 'text', required: false, referenceSchemaId: null, position }

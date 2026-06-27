@@ -1,6 +1,6 @@
 import type { Schema } from '@cms/shared'
-import { css } from '@emotion/react'
 import type { Control, UseFormRegister, UseFormWatch } from 'react-hook-form'
+import { fieldEditorStyles, requiredCellStyles } from './FieldEditor.style'
 
 interface FieldEditorProps {
   index: number
@@ -13,19 +13,6 @@ interface FieldEditorProps {
   onRemove: () => void
   schemas: Schema[]
 }
-
-const fieldEditorStyles = css({
-  display: 'grid',
-  gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr) auto auto auto',
-  alignItems: 'center',
-  gap: 8,
-  padding: '8px 0',
-  borderBottom: '1px solid #e2e8f0'
-})
-
-const requiredCellStyles = css({
-  textAlign: 'center'
-})
 
 const compactControlClassName =
   'w-full rounded-md border border-slate-300 bg-white px-2 py-1 text-sm text-slate-950 shadow-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100'

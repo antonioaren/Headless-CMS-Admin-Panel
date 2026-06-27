@@ -1,7 +1,7 @@
-import EntryFormPage from '@/pages/EntryFormPage'
-import EntryListPage from '@/pages/EntryListPage'
-import SchemaFormPage from '@/pages/SchemaFormPage'
-import SchemaListPage from '@/pages/SchemaListPage'
+import EntryFormPage from '@/pages/EntryFormPage/EntryFormPage'
+import EntryListPage from '@/pages/EntryListPage/EntryListPage'
+import SchemaFormPage from '@/pages/SchemaFormPage/SchemaFormPage'
+import SchemaListPage from '@/pages/SchemaListPage/SchemaListPage'
 import { Navigate, Route, Routes } from 'react-router-dom'
 
 // BrowserRouter is mounted in main.tsx — only Routes live here.

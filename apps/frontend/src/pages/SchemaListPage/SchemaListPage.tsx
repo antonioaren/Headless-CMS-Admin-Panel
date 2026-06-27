@@ -1,14 +1,14 @@
 import { apiDelete, apiGet } from '@/lib/api'
+import type { Schema } from '@cms/shared'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useNavigate } from 'react-router-dom'
 import {
   pageHeaderStyles,
   pageShellStyles,
   schemaActionsStyles,
   schemaCardStyles,
   schemaListStyles
-} from '@/pages/SchemaListPage.style'
-import type { Schema } from '@cms/shared'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useNavigate } from 'react-router-dom'
+} from './SchemaListPage.style'
 
 export default function SchemaListPage() {
   const navigate = useNavigate()
