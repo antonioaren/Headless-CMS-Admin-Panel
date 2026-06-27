@@ -48,14 +48,14 @@ Check items as completed. `→ REQ-x` links the requirement each task satisfies.
 - [x] Frontend pages/components colocated into feature folders with `*.style.tsx` and smoke specs
 - [x] Verify: add field to `Car` schema → new control appears in entry form, no code change
 
-## M3 — Read API / Feature E (→ REQ-E) — cheap, builds the resolver
+## M3 — Read API / Feature E (→ REQ-E) — cheap, builds the resolver ✅
 
-- [ ] id→name resolver (entry.data keyed by field.id → current field names)
-- [ ] Reference resolver (resolve referenced entry id → readable value)
-- [ ] Backend `GET /api/content/:slug` — all entries, resolved names + values
-- [ ] Backend `GET /api/content/:slug/:id` — one entry, resolved
-- [ ] Comment marking where API-key / auth middleware would slot in
-- [ ] Verify: `GET /api/content/car` returns cars with human-readable names + resolved owner
+- [x] id→name resolver (entry.data keyed by field.id → current field names)
+- [x] Reference resolver (resolve referenced entry id → readable value)
+- [x] Backend `GET /api/content/:slug` — all entries, resolved names + values
+- [x] Backend `GET /api/content/:slug/:id` — one entry, resolved
+- [x] Comment marking where API-key / auth middleware would slot in
+- [x] Verify: `GET /api/content/car` returns cars with human-readable names + resolved owner
 
 ## M4 — Realtime / Feature C (→ REQ-C)
 
