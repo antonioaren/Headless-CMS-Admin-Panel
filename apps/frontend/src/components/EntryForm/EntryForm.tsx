@@ -65,12 +65,9 @@ function ReferenceSelect({ field, value, onChange, onViewClick }: ReferenceSelec
 
 function renderFieldControl(
   field: Field,
-  // biome-ignore lint/suspicious/noExplicitAny: RHF register is polymorphic
-  register: ReturnType<typeof useForm<any>>['register'],
-  // biome-ignore lint/suspicious/noExplicitAny: RHF watch is polymorphic
-  watch: ReturnType<typeof useForm<any>>['watch'],
-  // biome-ignore lint/suspicious/noExplicitAny: RHF setValue is polymorphic
-  setValue: ReturnType<typeof useForm<any>>['setValue'],
+  register: ReturnType<typeof useForm>['register'],
+  watch: ReturnType<typeof useForm>['watch'],
+  setValue: ReturnType<typeof useForm>['setValue'],
   navigate: ReturnType<typeof useNavigate>
 ) {
   const fieldKey = field.id
