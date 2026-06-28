@@ -90,9 +90,8 @@ export default function SchemaFormPage() {
         displayName: values.displayName,
         fields: values.fields.map((f, i) => ({ ...f, position: i }))
       }),
-    onSuccess: (newSchema) => {
-      queryClient.setQueryData<Schema[]>(queryKeys.schemas, (prev = []) => [...prev, newSchema])
-      queryClient.setQueryData(queryKeys.schema(newSchema.id), newSchema)
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.schemas, exact: true })
       navigate('/schemas')
     }
   })
