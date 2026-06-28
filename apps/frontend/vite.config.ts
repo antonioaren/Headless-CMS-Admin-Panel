@@ -19,8 +19,8 @@ export default defineConfig({
     port: 5173,
     proxy: {
       // dev proxy: /api -> backend, so the SPA talks to Fastify without CORS friction
-      '/api': 'http://localhost:3000',
-      '/health': 'http://localhost:3000'
+      '/api': { target: 'http://localhost:3000', changeOrigin: true },
+      '/health': { target: 'http://localhost:3000', changeOrigin: true }
     }
   }
 })
