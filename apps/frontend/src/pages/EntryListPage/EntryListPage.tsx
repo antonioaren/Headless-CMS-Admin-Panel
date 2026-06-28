@@ -39,10 +39,15 @@ export default function EntryListPage() {
     isError: entriesError
   } = useQuery(entriesQueryOptions(schemaId))
 
+  // Patch the list optimistically so the row vanishes instantly (no perceived delay).
+  // The socket echo (useRealtimeSync) then reconciles the list — the single refetch
+  // source — so we don't invalidate here and cause a second fetch.
   const deleteMutation = useMutation({
     mutationFn: (id: string) => deleteEntry(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.entries(schemaId as string) })
+    onSuccess: (_, id) => {
+      queryClient.setQueryData<Entry[]>(queryKeys.entries(schemaId as string), (old) =>
+        old ? old.filter((e) => e.id !== id) : old
+      )
     }
   })
 
