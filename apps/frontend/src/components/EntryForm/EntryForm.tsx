@@ -160,7 +160,13 @@ export function EntryForm({
       const defaults: Record<string, unknown> = {}
       for (const f of schema.fields) {
         const val = (entry.data as Record<string, unknown>)[f.id]
-        if (val !== undefined) defaults[f.id] = val
+        if (val !== undefined) {
+          defaults[f.id] = val
+        } else if (!f.required) {
+          // Register optional absent fields explicitly so RHF tracks them and
+          // the Zod preprocess receives the right empty value per type
+          defaults[f.id] = f.type === 'number' ? undefined : ''
+        }
       }
       reset(defaults)
     }
@@ -169,8 +175,10 @@ export function EntryForm({
   async function onSubmit(values: Record<string, unknown>) {
     const data: EntryData = {}
     for (const f of schema.fields) {
-      if (values[f.id] !== undefined) {
-        data[f.id] = values[f.id]
+      const v = values[f.id]
+      // Skip undefined and empty-string values for optional fields (no data to save)
+      if (v !== undefined && !(v === '' && !f.required)) {
+        data[f.id] = v
       }
     }
     await onSave(data)

@@ -8,25 +8,46 @@ export function buildZodSchema(fields: Field[]): z.ZodObject<Record<string, ZodT
   const shape: Record<string, ZodTypeAny> = {}
 
   for (const field of fields) {
-    let base: ZodTypeAny = z.unknown()
-
-    switch (field.type) {
-      case 'text':
-      case 'reference':
-        base = z.string()
-        break
-      case 'number':
-        base = z.number()
-        break
-      case 'boolean':
-        base = z.boolean()
-        break
-      case 'date':
-        base = z.string() // ISO string; refined in M2
-        break
+    if (field.required) {
+      switch (field.type) {
+        case 'text':
+        case 'reference':
+          shape[field.id] = z.string().min(1)
+          break
+        case 'number':
+          shape[field.id] = z.number()
+          break
+        case 'boolean':
+          shape[field.id] = z.boolean()
+          break
+        case 'date':
+          shape[field.id] = z.string().min(1)
+          break
+        default:
+          shape[field.id] = z.unknown()
+      }
+    } else {
+      switch (field.type) {
+        case 'text':
+        case 'reference':
+        case 'date':
+          // Empty string from an unset input coerces to undefined (field is optional)
+          shape[field.id] = z.preprocess((v) => (v === '' ? undefined : v), z.string().optional().nullable())
+          break
+        case 'number':
+          // Empty number input yields NaN via valueAsNumber; treat as absent
+          shape[field.id] = z.preprocess(
+            (v) => (v === '' || (typeof v === 'number' && Number.isNaN(v)) ? undefined : v),
+            z.number().optional().nullable()
+          )
+          break
+        case 'boolean':
+          shape[field.id] = z.boolean().optional().nullable()
+          break
+        default:
+          shape[field.id] = z.unknown().optional()
+      }
     }
-
-    shape[field.id] = field.required ? base : base.optional().nullable()
   }
 
   return z.object(shape)
