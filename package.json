@@ -12,6 +12,7 @@
     "db:migrate": "pnpm --filter backend db:migrate",
     "db:seed": "pnpm --filter backend db:seed",
     "dev": "pnpm db:up && pnpm db:migrate && pnpm db:seed && pnpm -r --parallel run dev",
+    "test": "pnpm --filter @cms/shared test && pnpm --filter frontend test",
     "lint": "biome check .",
     "format": "biome format --write ."
   },
