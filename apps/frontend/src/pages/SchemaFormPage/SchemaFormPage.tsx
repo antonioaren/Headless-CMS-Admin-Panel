@@ -44,6 +44,8 @@ export default function SchemaFormPage() {
   const [migrationPlan, setMigrationPlan] = useState<MigrationPlan | null>(null)
   const [pendingValues, setPendingValues] = useState<FormValues | null>(null)
   const [showModal, setShowModal] = useState(false)
+  const [validationError, setValidationError] = useState<string | null>(null)
+  const [submitted, setSubmitted] = useState(false)
 
   const { data: schema } = useQuery({
     queryKey: ['schema', id],
@@ -60,7 +62,14 @@ export default function SchemaFormPage() {
     queryFn: () => apiGet<{ data: Schema[] }>('/api/schemas').then((r) => r.data)
   })
 
-  const { register, control, watch, handleSubmit, reset } = useForm<FormValues>({
+  const {
+    register,
+    control,
+    watch,
+    handleSubmit,
+    reset,
+    formState: { errors }
+  } = useForm<FormValues>({
     defaultValues: { displayName: '', fields: [defaultField(0)] }
   })
 
@@ -105,6 +114,13 @@ export default function SchemaFormPage() {
   }
 
   function onSubmit(values: FormValues) {
+    const missingRef = values.fields.find((f) => f.type === 'reference' && !f.referenceSchemaId)
+    if (missingRef) {
+      setValidationError(`Field "${missingRef.key || 'unnamed'}" is type reference but no target schema is selected.`)
+      return
+    }
+    setValidationError(null)
+
     if (isEdit) {
       // In edit mode: call plan first, then show modal
       const body = buildMigrationBody(values)
@@ -151,7 +167,12 @@ export default function SchemaFormPage() {
     <main css={pageShellStyles}>
       <h1 className="mb-6 text-3xl font-bold tracking-tight text-slate-950">{isEdit ? 'Edit Schema' : 'New Schema'}</h1>
 
-      <form onSubmit={handleSubmit(onSubmit)}>
+      <form
+        onSubmit={(e) => {
+          setSubmitted(true)
+          handleSubmit(onSubmit)(e)
+        }}
+      >
         <div className="mb-5">
           <label htmlFor="displayName" className="mb-1.5 block text-xs font-semibold text-slate-600">
             Schema name
@@ -160,8 +181,9 @@ export default function SchemaFormPage() {
             id="displayName"
             {...register('displayName', { required: true })}
             placeholder="e.g. Person"
-            className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-950 shadow-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+            className={`w-full rounded-md border bg-white px-3 py-2 text-sm text-slate-950 shadow-sm outline-none focus:ring-2 ${submitted && errors.displayName ? 'border-red-400 focus:border-red-400 focus:ring-red-100' : 'border-slate-300 focus:border-blue-500 focus:ring-blue-100'}`}
           />
+          {submitted && errors.displayName && <p className="mt-1 text-xs text-red-600">Schema name is required.</p>}
         </div>
 
         <div className="mb-5">
@@ -189,6 +211,7 @@ export default function SchemaFormPage() {
                     watch={watch}
                     onRemove={() => remove(index)}
                     schemas={allSchemas}
+                    showReferenceError={submitted}
                   />
                 </div>
                 <div css={fieldReorderControlsStyles}>
@@ -216,6 +239,7 @@ export default function SchemaFormPage() {
           </div>
         </div>
 
+        {validationError && <p className="mb-3 text-sm text-red-700">{validationError}</p>}
         {error && <p className="mb-3 text-sm text-red-700">Error: {error}</p>}
 
         <div className="mt-6 flex gap-3">
