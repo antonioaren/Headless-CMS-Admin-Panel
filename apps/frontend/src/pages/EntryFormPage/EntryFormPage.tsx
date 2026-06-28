@@ -2,6 +2,7 @@ import { EntryForm } from '@/components/EntryForm/EntryForm'
 import { apiGet, createEntry, getEntry, updateEntry } from '@/lib/api'
 import type { EntryData, Schema } from '@cms/shared'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { pageShellStyles } from './EntryFormPage.style'
 
@@ -20,6 +21,26 @@ export default function EntryFormPage() {
       }),
     enabled: !!schemaId
   })
+
+  const renderedSchemaVersionRef = useRef<number | null>(null)
+  const [isSchemaStale, setIsSchemaStale] = useState(false)
+
+  useEffect(() => {
+    if (schema && renderedSchemaVersionRef.current === null) {
+      renderedSchemaVersionRef.current = schema.version
+    }
+  }, [schema])
+
+  useEffect(() => {
+    if (schema && renderedSchemaVersionRef.current !== null && schema.version > renderedSchemaVersionRef.current) {
+      setIsSchemaStale(true)
+    }
+  }, [schema])
+
+  function handleReloadSchema() {
+    renderedSchemaVersionRef.current = schema?.version ?? null
+    setIsSchemaStale(false)
+  }
 
   const { data: existingEntry, isLoading: entryLoading } = useQuery({
     queryKey: ['entry', entryId],
@@ -93,6 +114,8 @@ export default function EntryFormPage() {
         onCancel={() => navigate(`/schemas/${schemaId}/entries`)}
         isPending={isPending}
         error={mutationError}
+        isSchemaStale={isSchemaStale}
+        onReloadSchema={handleReloadSchema}
       />
     </main>
   )

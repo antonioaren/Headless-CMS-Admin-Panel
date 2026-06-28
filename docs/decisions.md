@@ -52,10 +52,10 @@ Format: **Status** · **Context** · **Decision** · **Consequence**.
 
 ## ADR-005 — Mid-edit collision behavior
 
-**Status:** OPEN — decide by M6
+**Status:** Accepted — Option A
 **Context:** When a schema changes while a form is open (`version > renderedSchemaVersion`), the form is stale.
 **Options:**
 - **A (minimum):** non-destructive banner + block save until reloaded.
 - **B (better):** re-derive form from new schema, re-validate typed values, flag now-invalid fields.
-**Decision:** _TBD._
-**Consequence:** _TBD — record rationale here once chosen; surface in walkthrough._
+**Decision:** Chose Option A (banner + block save + reload action).
+**Consequence:** Open entry forms detect schema version changes via realtime events. A warning banner blocks save until the user explicitly reloads. Option B (re-derive form) deferred as a future enhancement.

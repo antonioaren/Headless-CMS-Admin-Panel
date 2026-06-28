@@ -83,12 +83,12 @@ Check items as completed. `→ REQ-x` links the requirement each task satisfies.
 
 ## M6 — Mid-edit collision (D×C) + polish (→ REQ-D.5, REQ-C)
 
-- [ ] Open form records `renderedSchemaVersion`
-- [ ] On `schema.updated` where `version > renderedSchemaVersion` → react
-- [ ] Implement chosen behavior: banner + block save (minimum) OR re-derive + re-validate (better)
-- [ ] Empty states + error states across schema list, entry list, forms
-- [ ] Loading / pending states on mutations
-- [ ] Decide + note chosen mid-edit behavior for walkthrough
+- [x] Open form records `renderedSchemaVersion`
+- [x] On `schema.updated` where `version > renderedSchemaVersion` → react
+- [x] Implement chosen behavior: banner + block save (minimum) OR re-derive + re-validate (better)
+- [x] Empty states + error states across schema list, entry list, forms
+- [x] Loading / pending states on mutations
+- [x] Decide + note chosen mid-edit behavior for walkthrough
 
 ## M7 — Deliverables (→ REQ-DELIV)
 
