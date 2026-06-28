@@ -12,5 +12,7 @@ coverage/
 
 .pnpm-store/
 
+ai-sessions-logs/
+
 *.local.*
-local/
+local/*
