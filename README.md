@@ -139,17 +139,3 @@ diff(current, proposed) → changes[] → scan entries → classify each cell (o
 | [TASK.md](./TASK.md)                                  | Milestone build checklist (progress tracking)     |
 | [docs/](./docs/)                                      | Architecture, data model, API, decisions          |
 
----
-
-## Non-goals
-
-Auth / multi-tenant / RBAC · pagination & search at scale · rich-text or media fields · nested/array/object fields · optimistic offline / CRDT merge · production deployment · validation beyond type + required. These are deliberate — not unfinished.
-
----
-
-## Deliverables
-
-- [ ] Working app
-- [ ] README (this file)
-- [ ] Walkthrough (<10 min video or <15 slides, leads with the D pipeline)
-- [ ] AI session log
