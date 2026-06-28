@@ -1,7 +1,7 @@
 import { EntryForm } from '@/components/EntryForm/EntryForm'
 import { apiGet, getEntry, updateEntry } from '@/lib/api'
 import type { Entry, EntryData, MigrationImpact, MigrationPlan, Schema } from '@cms/shared'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 
@@ -19,17 +19,16 @@ function RepairEntryCard({
   onDone: () => void
 }) {
   const navigate = useNavigate()
-  const queryClient = useQueryClient()
   const { data: entry, isLoading } = useQuery({
     queryKey: ['entry', entryId],
-    queryFn: () => getEntry(entryId)
+    queryFn: () => getEntry(entryId),
+    staleTime: Number.POSITIVE_INFINITY // entry data is fixed until the user saves the repair
   })
 
   const updateMutation = useMutation({
     mutationFn: (data: EntryData) => updateEntry(entryId, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['entry', entryId] })
-      onDone()
+      onDone() // card unmounts immediately; no need to refetch the saved entry
     }
   })
 

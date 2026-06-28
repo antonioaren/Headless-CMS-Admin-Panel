@@ -5,7 +5,13 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
 
-const queryClient = new QueryClient()
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 30_000 // socket invalidates on mutations; 30s covers navigation flicker
+    }
+  }
+})
 
 const root = document.getElementById('root')
 if (!root) throw new Error('root element not found')

@@ -11,6 +11,7 @@
     "db:up": "docker compose up -d",
     "db:migrate": "pnpm --filter backend db:migrate",
     "db:seed": "pnpm --filter backend db:seed",
+    "db:reset": "docker compose down -v && pnpm db:up && pnpm db:migrate && pnpm db:seed",
     "dev": "pnpm db:up && pnpm db:migrate && pnpm db:seed && pnpm -r --parallel run dev",
     "test": "pnpm --filter @cms/shared test && pnpm --filter frontend test",
     "lint": "biome check .",
