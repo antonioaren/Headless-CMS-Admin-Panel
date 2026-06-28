@@ -47,7 +47,7 @@ export default function SchemaFormPage() {
   const [validationError, setValidationError] = useState<string | null>(null)
   const [submitted, setSubmitted] = useState(false)
 
-  const { data: schema } = useQuery({
+  const { data: schema, isLoading: schemaLoading } = useQuery({
     queryKey: ['schema', id],
     queryFn: () =>
       apiGet<{ data: Schema }>('/api/schemas').then((r) => {
@@ -162,6 +162,14 @@ export default function SchemaFormPage() {
 
   const isPending = createMutation.isPending || planMutation.isPending || applyMutation.isPending
   const error = createMutation.error?.message ?? planMutation.error?.message ?? applyMutation.error?.message
+
+  if (isEdit && schemaLoading) {
+    return (
+      <main css={pageShellStyles}>
+        <p>Loading...</p>
+      </main>
+    )
+  }
 
   return (
     <main css={pageShellStyles}>

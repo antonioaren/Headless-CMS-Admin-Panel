@@ -36,7 +36,8 @@ All payloads are thin by design (id + schemaId + optional version).
 
 | Event | Keys invalidated |
 |---|---|
-| `schema.*` | `['schemas']` |
+| `schema.created` / `schema.deleted` | `['schemas']` |
+| `schema.updated` | `['schemas']`, `['schema', payload.schemaId]` |
 | `entry.created` / `entry.updated` / `entry.deleted` | `['entries', payload.schemaId]`, `['entry', payload.id]` |
 
-`['schema', id]` (single schema used in edit forms) is NOT invalidated on `schema.updated` — the form already has the version in its local state; M6 handles the stale-form reaction from the `version` field in the payload.
+`['schema', id]` (single schema used in entry forms) IS invalidated on `schema.updated` so `EntryFormPage` receives the new version and can detect stale state. See `docs/mid-edit-collision.md`.

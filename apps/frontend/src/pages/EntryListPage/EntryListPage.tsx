@@ -40,7 +40,11 @@ export default function EntryListPage() {
     enabled: !!schemaId
   })
 
-  const { data: entryList = [], isLoading: entriesLoading } = useQuery({
+  const {
+    data: entryList = [],
+    isLoading: entriesLoading,
+    isError: entriesError
+  } = useQuery({
     queryKey: ['entries', schemaId],
     queryFn: () => (schema ? listEntries(schema.slug) : Promise.resolve([])),
     enabled: !!schema
@@ -86,9 +90,13 @@ export default function EntryListPage() {
 
       {isLoading && <p>Loading...</p>}
 
-      {!isLoading && entryList.length === 0 && <p className="text-sm text-slate-500">No entries yet. Create one.</p>}
+      {!isLoading && entriesError && <p className="text-sm text-red-700">Failed to load entries.</p>}
 
-      {!isLoading && entryList.length > 0 && schema && (
+      {!isLoading && !entriesError && entryList.length === 0 && (
+        <p className="text-sm text-slate-500">No entries yet. Create one.</p>
+      )}
+
+      {!isLoading && !entriesError && entryList.length > 0 && schema && (
         <ul css={entryListStyles}>
           {entryList.map((entry) => (
             <li key={entry.id} css={entryCardStyles}>

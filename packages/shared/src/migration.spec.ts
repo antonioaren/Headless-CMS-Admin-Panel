@@ -244,9 +244,9 @@ describe('buildPlan', () => {
   it('builds summary counts correctly', () => {
     const changes = [{ fieldId: 'f1', kind: 'retype' as const, from: 'text', to: 'number' }]
     const entries = [
-      { id: 'e1', data: { f1: '2024' } },   // auto
+      { id: 'e1', data: { f1: '2024' } }, // auto
       { id: 'e2', data: { f1: 'vintage' } }, // manual
-      { id: 'e3', data: { f1: '' } }         // ok (empty → ok)
+      { id: 'e3', data: { f1: '' } } // ok (empty → ok)
     ]
     const plan = buildPlan('s1', changes, entries)
 

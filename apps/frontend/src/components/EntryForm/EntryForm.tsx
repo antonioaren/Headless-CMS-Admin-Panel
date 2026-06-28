@@ -123,9 +123,21 @@ export interface EntryFormProps {
   isPending?: boolean
   error?: string
   submitLabel?: string
+  isSchemaStale?: boolean
+  onReloadSchema?: () => void
 }
 
-export function EntryForm({ schema, entry, onSave, onCancel, isPending = false, error, submitLabel }: EntryFormProps) {
+export function EntryForm({
+  schema,
+  entry,
+  onSave,
+  onCancel,
+  isPending = false,
+  error,
+  submitLabel,
+  isSchemaStale = false,
+  onReloadSchema
+}: EntryFormProps) {
   const navigate = useNavigate()
   const isEdit = !!entry
 
@@ -168,6 +180,14 @@ export function EntryForm({ schema, entry, onSave, onCancel, isPending = false, 
 
   return (
     <form onSubmit={handleSubmit(onSubmit as Parameters<typeof handleSubmit>[0])}>
+      {isSchemaStale && (
+        <div className="schema-stale-banner">
+          <p>This schema changed while you were editing. Reload the form before saving.</p>
+          <button type="button" onClick={onReloadSchema}>
+            Reload form
+          </button>
+        </div>
+      )}
       <div css={fieldGroupStyles}>
         {schema.fields.map((field) => {
           const errMsg = (errors[field.id] as { message?: string } | undefined)?.message
@@ -190,7 +210,7 @@ export function EntryForm({ schema, entry, onSave, onCancel, isPending = false, 
       <div css={formActionsStyles}>
         <button
           type="submit"
-          disabled={isPending}
+          disabled={isPending || isSchemaStale}
           className="inline-flex items-center justify-center rounded-md border border-blue-600 bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-40"
         >
           {isPending ? 'Saving…' : label}

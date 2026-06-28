@@ -8,8 +8,9 @@ export function useRealtimeSync() {
   const queryClient = useQueryClient()
 
   useEffect(() => {
-    function onSchemaChange(_payload: Payload) {
+    function onSchemaChange(payload: Payload) {
       queryClient.invalidateQueries({ queryKey: ['schemas'] })
+      queryClient.invalidateQueries({ queryKey: ['schema', payload.schemaId] })
     }
 
     function onEntryChange(payload: Payload) {

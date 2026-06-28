@@ -46,7 +46,9 @@ export default function SchemaListPage() {
 
       {isLoading && <p>Loading...</p>}
 
-      {!isLoading && data?.length === 0 && <p className="text-sm text-slate-500">No schemas yet. Create one.</p>}
+      {!isLoading && data?.length === 0 && (
+        <p className="text-sm text-slate-500">No schemas yet. Create your first one.</p>
+      )}
 
       {data && data.length > 0 && (
         <ul css={schemaListStyles}>
