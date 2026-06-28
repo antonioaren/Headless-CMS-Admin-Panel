@@ -1,8 +1,8 @@
-import { apiGet, listEntries } from '@/lib/api'
+import { entriesQueryOptions, schemaQueryOptions } from '@/lib/queries'
 import type { Entry, EntryData, Field, Schema } from '@cms/shared'
 import { buildZodSchema } from '@cms/shared'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
@@ -21,18 +21,10 @@ interface ReferenceSelectProps {
 }
 
 function ReferenceSelect({ field, value, onChange, onViewClick }: ReferenceSelectProps) {
-  const { data: refEntries = [], isLoading } = useQuery({
-    queryKey: ['entries-for-ref', field.referenceSchemaId],
-    queryFn: async () => {
-      if (!field.referenceSchemaId) return []
-      const schemas = await apiGet<{ data: Schema[] }>('/api/schemas').then((r) => r.data as unknown as Schema[])
-      const refSchema = schemas.find((s) => s.id === field.referenceSchemaId)
-      if (!refSchema) return []
-      const entries = await listEntries(refSchema.slug)
-      return entries.map((e) => ({ entry: e, schema: refSchema }))
-    },
-    enabled: !!field.referenceSchemaId
-  })
+  const queryClient = useQueryClient()
+  const { data: refSchema } = useQuery(schemaQueryOptions(field.referenceSchemaId ?? undefined, queryClient))
+  const { data: entries = [], isLoading } = useQuery(entriesQueryOptions(field.referenceSchemaId ?? undefined))
+  const refEntries = refSchema ? entries.map((entry) => ({ entry, schema: refSchema })) : []
 
   return (
     <div css={fieldRowStyles}>

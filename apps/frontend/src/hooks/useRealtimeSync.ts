@@ -1,3 +1,4 @@
+import { queryKeys } from '@/lib/queries'
 import { socket } from '@/lib/socket'
 import { useQueryClient } from '@tanstack/react-query'
 import { useEffect } from 'react'
@@ -9,13 +10,13 @@ export function useRealtimeSync() {
 
   useEffect(() => {
     function onSchemaChange(payload: Payload) {
-      queryClient.invalidateQueries({ queryKey: ['schemas'] })
-      queryClient.invalidateQueries({ queryKey: ['schema', payload.schemaId] })
+      queryClient.invalidateQueries({ queryKey: queryKeys.schemas, exact: true })
+      queryClient.invalidateQueries({ queryKey: queryKeys.schema(payload.schemaId) })
     }
 
     function onEntryChange(payload: Payload) {
-      queryClient.invalidateQueries({ queryKey: ['entries', payload.schemaId] })
-      queryClient.invalidateQueries({ queryKey: ['entry', payload.id] })
+      queryClient.invalidateQueries({ queryKey: queryKeys.entries(payload.schemaId) })
+      queryClient.invalidateQueries({ queryKey: queryKeys.entry(payload.schemaId, payload.id) })
     }
 
     socket.on('schema.created', onSchemaChange)

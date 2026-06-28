@@ -1,7 +1,8 @@
 import { EntryForm } from '@/components/EntryForm/EntryForm'
-import { apiGet, getEntry, updateEntry } from '@/lib/api'
+import { updateEntry } from '@/lib/api'
+import { entryQueryOptions, schemaQueryOptions } from '@/lib/queries'
 import type { Entry, EntryData, MigrationImpact, MigrationPlan, Schema } from '@cms/shared'
-import { useMutation, useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 
@@ -19,9 +20,9 @@ function RepairEntryCard({
   onDone: () => void
 }) {
   const navigate = useNavigate()
+  const queryClient = useQueryClient()
   const { data: entry, isLoading } = useQuery({
-    queryKey: ['entry', entryId],
-    queryFn: () => getEntry(entryId),
+    ...entryQueryOptions(schema.id, entryId, queryClient),
     staleTime: Number.POSITIVE_INFINITY // entry data is fixed until the user saves the repair
   })
 
@@ -62,15 +63,8 @@ export default function RepairPage() {
 
   const [doneEntries, setDoneEntries] = useState<Set<string>>(new Set())
 
-  const { data: schema, isLoading: schemaLoading } = useQuery({
-    queryKey: ['schema', schemaId],
-    queryFn: () =>
-      apiGet<{ data: Schema[] }>('/api/schemas').then((r) => {
-        const list = r.data as unknown as Schema[]
-        return list.find((s) => s.id === schemaId) ?? null
-      }),
-    enabled: !!schemaId
-  })
+  const queryClient = useQueryClient()
+  const { data: schema, isLoading: schemaLoading } = useQuery(schemaQueryOptions(schemaId, queryClient))
 
   if (!state?.plan) {
     navigate('/schemas')

@@ -48,6 +48,24 @@ Format: **Status** · **Context** · **Decision** · **Consequence**.
 **Decision:** Option (c) — the apply response returns the full `MigrationPlan`; the frontend navigates to `/schemas/:id/repair` with `state: { plan }`. No DB column, no sentinel key.
 **Consequence:** Repair state is session-scoped. If the user navigates away mid-repair, state is lost — but the underlying entry values are still wrong and classifiable again on the next plan run. Keeps the data model clean (no migration-bookkeeping pollution in `entries.data`).
 
+## ADR-008 — Centralized TanStack Query keys and query options factory
+
+**Status:** Resolved (M6 polish)
+**Context:** Each page built its own `useQuery` inline with ad-hoc string arrays as keys (`['schema', id]`, `['schemas']`, `['entries', schemaId]`, `['entry', id]`). This caused three compounding problems:
+
+1. **No deduplication across pages.** `SchemaFormPage`, `EntryListPage`, `EntryFormPage`, and `RepairPage` all fetched `GET /api/schemas` (full list) to extract one schema by ID. TanStack could not dedupe these because the keys differed — `['schema', id]` vs `['schemas']` — so every page navigation fired a redundant full-list fetch.
+2. **Waterfall on entries.** `EntryListPage` gated its entries query behind `enabled: !!schema` so it could pass `schema.slug` to `listEntries`. Schema resolved first, then entries started — two sequential round trips instead of one parallel pair.
+3. **Inconsistent invalidation.** Socket events and mutations invalidated keys by hand-typed strings scattered across files. A typo or mismatch silently left stale data on screen.
+
+**Decision:** Introduce `apps/frontend/src/lib/queries.ts` with:
+- `queryKeys` — single source of truth for all cache key arrays, using a hierarchical shape (`['schemas']` → `['schemas', id]`, `['entries', schemaId]` → `['entries', schemaId, entryId]`) so TanStack's prefix invalidation works correctly.
+- `queryOptions` factories (`schemasQueryOptions`, `schemaQueryOptions`, `entriesQueryOptions`, `entryQueryOptions`) — each wires `queryKey`, `queryFn`, `enabled`, `initialData`, and `initialDataUpdatedAt` in one place.
+- `initialData` seeds individual-item queries from the parent list cache (`['schemas']` → `['schemas', id]`), so navigating from a list page to a detail page hits zero network requests if the list was already fetched.
+- Add `GET /api/schemas/:id` and `GET /api/entries?schemaId=` backend endpoints so single-item fetches are direct (no full-list fetch, no slug-to-id join).
+- Set global `QueryClient` defaults: `staleTime: 30_000`, `refetchOnWindowFocus: false`, `retry: 1`. Socket invalidations handle freshness on mutations; the 30 s window covers navigation flicker without over-fetching.
+
+**Consequence:** Schema detail pages serve from cache when the list was previously fetched. Entries and schema load in parallel (no waterfall). All invalidations (socket + mutations) reference `queryKeys` constants — no hand-typed strings. `listEntries(slug)` removed; `listEntriesBySchemaId(id)` is the only entries fetch path.
+
 ---
 
 ## ADR-005 — Mid-edit collision behavior

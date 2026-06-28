@@ -1,4 +1,5 @@
-import { apiDelete, apiGet } from '@/lib/api'
+import { apiDelete } from '@/lib/api'
+import { queryKeys, schemasQueryOptions } from '@/lib/queries'
 import type { Schema } from '@cms/shared'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from 'react-router-dom'
@@ -14,15 +15,12 @@ export default function SchemaListPage() {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
 
-  const { data, isLoading } = useQuery({
-    queryKey: ['schemas'],
-    queryFn: () => apiGet<{ data: Schema[] }>('/api/schemas').then((r) => r.data)
-  })
+  const { data, isLoading } = useQuery(schemasQueryOptions())
 
   const deleteMutation = useMutation({
     mutationFn: (id: string) => apiDelete<{ id: string }>(`/api/schemas/${id}`),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['schemas'] })
+      queryClient.invalidateQueries({ queryKey: queryKeys.schemas, exact: true })
     }
   })
 
