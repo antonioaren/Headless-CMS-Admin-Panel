@@ -12,12 +12,20 @@ interface FieldEditorProps {
   watch: UseFormWatch<any>
   onRemove: () => void
   schemas: Schema[]
+  showReferenceError?: boolean
 }
 
 const compactControlClassName =
   'w-full rounded-md border border-slate-300 bg-white px-2 py-1 text-sm text-slate-950 shadow-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100'
 
-export function FieldEditor({ index, register, watch, onRemove, schemas }: FieldEditorProps) {
+export function FieldEditor({
+  index,
+  register,
+  watch,
+  onRemove,
+  schemas,
+  showReferenceError = false
+}: FieldEditorProps) {
   const fieldType = watch(`fields.${index}.type`)
 
   return (
@@ -65,12 +73,12 @@ export function FieldEditor({ index, register, watch, onRemove, schemas }: Field
             htmlFor={`fields.${index}.referenceSchemaId`}
             className="mb-1.5 block text-xs font-semibold text-slate-600"
           >
-            References
+            References <span className="text-red-600">*</span>
           </label>
           <select
             id={`fields.${index}.referenceSchemaId`}
-            {...register(`fields.${index}.referenceSchemaId`)}
-            className={compactControlClassName}
+            {...register(`fields.${index}.referenceSchemaId`, { required: true })}
+            className={`${compactControlClassName} ${showReferenceError && !watch(`fields.${index}.referenceSchemaId`) ? 'border-red-400' : ''}`}
           >
             <option value="">— pick schema —</option>
             {schemas.map((s) => (
@@ -79,6 +87,9 @@ export function FieldEditor({ index, register, watch, onRemove, schemas }: Field
               </option>
             ))}
           </select>
+          {showReferenceError && !watch(`fields.${index}.referenceSchemaId`) && (
+            <p className="mt-1 text-xs text-red-600">Select a target schema for this reference field.</p>
+          )}
         </div>
       ) : (
         <div />
