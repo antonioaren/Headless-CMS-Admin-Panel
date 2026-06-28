@@ -77,6 +77,8 @@ export default function EntryListPage() {
         </button>
       </div>
 
+      {deleteMutation.isError && <p className="mb-3 text-sm text-red-700">Error: {deleteMutation.error?.message}</p>}
+
       {isLoading && <p>Loading...</p>}
 
       {!isLoading && entriesError && <p className="text-sm text-red-700">Failed to load entries.</p>}
