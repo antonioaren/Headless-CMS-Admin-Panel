@@ -30,7 +30,10 @@ export function entriesQueryOptions(schemaId: string | undefined) {
   return {
     queryKey: queryKeys.entries(schemaId ?? ''),
     queryFn: () => listEntriesBySchemaId(schemaId as string),
-    enabled: !!schemaId
+    enabled: !!schemaId,
+    // Explicit so reference-field lists stay cache-served across form opens even
+    // if the global default changes; socket invalidation still refreshes on writes.
+    staleTime: 30_000
   }
 }
 

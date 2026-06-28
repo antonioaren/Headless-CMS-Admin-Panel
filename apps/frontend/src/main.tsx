@@ -9,6 +9,7 @@ const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       retry: 1,
+      retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 3000),
       refetchOnWindowFocus: false,
       staleTime: 30_000 // socket invalidates on mutations; 30s covers navigation flicker
     }
