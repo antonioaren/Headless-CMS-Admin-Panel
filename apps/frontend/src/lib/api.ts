@@ -6,7 +6,7 @@ const BASE = import.meta.env.VITE_API_URL ?? ''
 
 // Abort a request that stalls instead of hanging on the browser default (~300s).
 // A stalled fetch is what leaves the Save button stuck on "Saving…".
-const DEFAULT_TIMEOUT_MS = 10_000
+const DEFAULT_TIMEOUT_MS = 30_000
 
 async function request(path: string, init?: RequestInit): Promise<Response> {
   const controller = new AbortController()
@@ -23,9 +23,23 @@ async function request(path: string, init?: RequestInit): Promise<Response> {
   }
 }
 
+// Error thrown by apiGet on a non-2xx response. Carries the HTTP status so
+// callers (e.g. getSchema) can branch on 404 instead of string-matching.
+export class ApiError extends Error {
+  status: number
+  constructor(message: string, status: number) {
+    super(message)
+    this.name = 'ApiError'
+    this.status = status
+  }
+}
+
 export async function apiGet<T>(path: string): Promise<T> {
   const res = await request(path)
-  if (!res.ok) throw new Error(`GET ${path} failed: ${res.status}`)
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ error: res.statusText }))
+    throw new ApiError(err.error ?? `GET ${path} failed: ${res.status}`, res.status)
+  }
   return res.json() as Promise<T>
 }
 
@@ -73,8 +87,14 @@ export function listSchemas(): Promise<Schema[]> {
   return apiGet<{ data: Schema[] }>('/api/schemas').then((r) => r.data)
 }
 
-export function getSchema(id: string): Promise<Schema | null> {
-  return apiGet<{ data: Schema }>(`/api/schemas/${id}`).then((r) => r.data)
+export async function getSchema(id: string): Promise<Schema | null> {
+  try {
+    const r = await apiGet<{ data: Schema }>(`/api/schemas/${id}`)
+    return r.data
+  } catch (err) {
+    if (err instanceof ApiError && err.status === 404) return null
+    throw err
+  }
 }
 
 // --- Entry helpers ---

@@ -1,11 +1,12 @@
 import { FieldEditor } from '@/components/FieldEditor/FieldEditor'
 import { MigrationPreviewModal } from '@/features/migration/MigrationPreviewModal'
 import { useApplyMutation, usePlanMutation } from '@/features/migration/useMigrationPlan'
+import { useSchemaStale } from '@/hooks/useSchemaStale'
 import { apiPost } from '@/lib/api'
-import { queryKeys, schemaQueryOptions, schemasQueryOptions } from '@/lib/queries'
+import { schemaQueryOptions, schemasQueryOptions } from '@/lib/queries'
 import type { MigrationPlan, Schema } from '@cms/shared'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useFieldArray, useForm } from 'react-hook-form'
 import { useNavigate, useParams } from 'react-router-dom'
 import {
@@ -65,21 +66,38 @@ export default function SchemaFormPage() {
 
   const { fields, append, remove, swap } = useFieldArray({ control, name: 'fields' })
 
+  const { isStale: isSchemaStale, markCurrent } = useSchemaStale(schema)
+
+  function resetFromSchema(s: Schema) {
+    reset({
+      displayName: s.displayName,
+      fields: s.fields.map((f) => ({
+        id: f.id,
+        key: f.key,
+        type: f.type,
+        required: f.required,
+        referenceSchemaId: f.referenceSchemaId,
+        position: f.position
+      }))
+    })
+  }
+
+  // Populate the form once on first load. After that, a socket-driven refetch
+  // must NOT reset the form — it would clobber the user's in-progress edits.
+  // Staleness is surfaced via the banner instead; reload is explicit.
+  const hasLoadedRef = useRef(false)
+  // biome-ignore lint/correctness/useExhaustiveDependencies: first-load-only reset gated by hasLoadedRef; adding resetFromSchema would re-run on every schema refetch and clobber in-progress edits
   useEffect(() => {
-    if (schema) {
-      reset({
-        displayName: schema.displayName,
-        fields: schema.fields.map((f) => ({
-          id: f.id,
-          key: f.key,
-          type: f.type,
-          required: f.required,
-          referenceSchemaId: f.referenceSchemaId,
-          position: f.position
-        }))
-      })
+    if (schema && !hasLoadedRef.current) {
+      hasLoadedRef.current = true
+      resetFromSchema(schema)
     }
-  }, [schema, reset])
+  }, [schema])
+
+  function handleReloadSchema() {
+    if (schema) resetFromSchema(schema)
+    markCurrent()
+  }
 
   const planMutation = usePlanMutation(id ?? '')
   const applyMutation = useApplyMutation(id ?? '')
@@ -90,8 +108,9 @@ export default function SchemaFormPage() {
         displayName: values.displayName,
         fields: values.fields.map((f, i) => ({ ...f, position: i }))
       }),
+    // Schema list refetch is driven by the socket echo (schema.created) — the single
+    // source of truth — so onSuccess only navigates.
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.schemas, exact: true })
       navigate('/schemas')
     }
   })
@@ -132,7 +151,7 @@ export default function SchemaFormPage() {
     applyMutation.mutate(body, {
       onSuccess: (result) => {
         setShowModal(false)
-        queryClient.invalidateQueries({ queryKey: queryKeys.schemas, exact: true })
+        // Schema list refetch is driven by the socket echo (schema.updated).
 
         const plan = result.plan
         if (plan.summary.manual > 0) {
@@ -171,6 +190,14 @@ export default function SchemaFormPage() {
           handleSubmit(onSubmit)(e)
         }}
       >
+        {isSchemaStale && (
+          <div className="schema-stale-banner">
+            <p>This schema changed while you were editing. Reload the form before saving.</p>
+            <button type="button" onClick={handleReloadSchema}>
+              Reload form
+            </button>
+          </div>
+        )}
         <div className="mb-5">
           <label htmlFor="displayName" className="mb-1.5 block text-xs font-semibold text-slate-600">
             Schema name
@@ -243,7 +270,7 @@ export default function SchemaFormPage() {
         <div className="mt-6 flex gap-3">
           <button
             type="submit"
-            disabled={isPending}
+            disabled={isPending || isSchemaStale}
             className="inline-flex items-center justify-center rounded-md border border-blue-600 bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-40"
           >
             {isPending ? (isEdit ? 'Computing plan…' : 'Saving…') : isEdit ? 'Preview changes' : 'Create schema'}

@@ -1,9 +1,9 @@
 import { EntryForm } from '@/components/EntryForm/EntryForm'
+import { useSchemaStale } from '@/hooks/useSchemaStale'
 import { createEntry, updateEntry } from '@/lib/api'
-import { entryQueryOptions, queryKeys, schemaQueryOptions } from '@/lib/queries'
-import type { EntryData, Schema } from '@cms/shared'
+import { entryQueryOptions, schemaQueryOptions } from '@/lib/queries'
+import type { EntryData } from '@cms/shared'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { pageShellStyles } from './EntryFormPage.style'
 
@@ -15,34 +15,18 @@ export default function EntryFormPage() {
 
   const { data: schema, isLoading: schemaLoading } = useQuery(schemaQueryOptions(schemaId, queryClient))
 
-  const renderedSchemaVersionRef = useRef<number | null>(null)
-  const [isSchemaStale, setIsSchemaStale] = useState(false)
-
-  useEffect(() => {
-    if (schema && renderedSchemaVersionRef.current === null) {
-      renderedSchemaVersionRef.current = schema.version
-    }
-  }, [schema])
-
-  useEffect(() => {
-    if (schema && renderedSchemaVersionRef.current !== null && schema.version > renderedSchemaVersionRef.current) {
-      setIsSchemaStale(true)
-    }
-  }, [schema])
-
-  function handleReloadSchema() {
-    renderedSchemaVersionRef.current = schema?.version ?? null
-    setIsSchemaStale(false)
-  }
+  const { isStale: isSchemaStale, markCurrent: handleReloadSchema } = useSchemaStale(schema)
 
   const { data: existingEntry, isLoading: entryLoading } = useQuery(
     entryQueryOptions(schemaId, isEdit ? entryId : undefined, queryClient)
   )
 
+  // List/entry refetch is driven by the socket echo (useRealtimeSync) — the single
+  // source of truth — so onSuccess only navigates. This avoids the double refetch
+  // (mutation + socket) that added latency to every write.
   const createMutation = useMutation({
     mutationFn: (data: EntryData) => createEntry(schemaId as string, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.entries(schemaId as string) })
       navigate(`/schemas/${schemaId}/entries`)
     }
   })
@@ -50,8 +34,6 @@ export default function EntryFormPage() {
   const updateMutation = useMutation({
     mutationFn: (data: EntryData) => updateEntry(entryId as string, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.entries(schemaId as string) })
-      queryClient.invalidateQueries({ queryKey: queryKeys.entry(schemaId as string, entryId as string) })
       navigate(`/schemas/${schemaId}/entries`)
     }
   })
