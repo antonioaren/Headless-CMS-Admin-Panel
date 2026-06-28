@@ -63,7 +63,7 @@ Check items as completed. `→ REQ-x` links the requirement each task satisfies.
 - [x] Wire emit into every mutation (schema create/update/delete, entry create/update/delete)
 - [x] Frontend socket client: subscribe to events
 - [x] On event → patch/invalidate TanStack Query cache (never trust payload as source of truth)
-- [ ] Verify: 2 windows — create entry in A → appears live in B's list
+- [x] Verify: 2 windows — create entry in A → appears live in B's list (create + delete sync confirmed over socket)
 - [ ] Verify: rename field in A → B's open form reacts (hands to M6)
 
 ## M5 — Schema evolution / Feature D ⭐ (→ REQ-D) — the headline
@@ -92,7 +92,7 @@ Check items as completed. `→ REQ-x` links the requirement each task satisfies.
 
 ## M7 — Deliverables (→ REQ-DELIV)
 
-- [ ] README: install + run, env, dev commands — no questions asked
+- [x] README: install + run, env, dev commands — no questions asked
 - [ ] Walkthrough (<10 min video OR <15 slides), leads with D pipeline; architecture, data model, realtime, evolution, trade-offs, next
 - [x] AI session log: chat export / prompts / screenshots
 - [ ] Final pass: confirm all four deliverables present

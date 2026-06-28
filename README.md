@@ -4,13 +4,13 @@ Admin panel for a small headless CMS — define content schemas, manage entries 
 
 Built for [The Agile Monkeys](https://frontend-challenge-2026.theagilemonkeys.com/) frontend challenge. The graded core is **schema evolution** — see [Feature D](#feature-d--schema-evolution-).
 
-> **Status:** planning complete, implementation in progress. See [TASK.md](./TASK.md) for milestone progress.
+> **Status:** core features implemented (schema builder, dynamic entries, read API, realtime, schema evolution). See [TASK.md](./TASK.md) for milestone-by-milestone detail.
 
 ---
 
 ## Quick start
 
-> Requires: Node 20+, pnpm, Docker (Postgres only).
+> Requires: Node 22+, pnpm, Docker running (Postgres only).
 
 ```bash
 pnpm install && pnpm dev
