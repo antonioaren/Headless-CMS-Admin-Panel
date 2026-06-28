@@ -1,7 +1,8 @@
 import { FieldEditor } from '@/components/FieldEditor/FieldEditor'
 import { MigrationPreviewModal } from '@/features/migration/MigrationPreviewModal'
 import { useApplyMutation, usePlanMutation } from '@/features/migration/useMigrationPlan'
-import { apiGet, apiPost } from '@/lib/api'
+import { apiPost } from '@/lib/api'
+import { queryKeys, schemaQueryOptions, schemasQueryOptions } from '@/lib/queries'
 import type { MigrationPlan, Schema } from '@cms/shared'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useEffect, useState } from 'react'
@@ -47,20 +48,9 @@ export default function SchemaFormPage() {
   const [validationError, setValidationError] = useState<string | null>(null)
   const [submitted, setSubmitted] = useState(false)
 
-  const { data: schema, isLoading: schemaLoading } = useQuery({
-    queryKey: ['schema', id],
-    queryFn: () =>
-      apiGet<{ data: Schema }>('/api/schemas').then((r) => {
-        const list = r.data as unknown as Schema[]
-        return list.find((s) => s.id === id) ?? null
-      }),
-    enabled: isEdit
-  })
+  const { data: schema, isLoading: schemaLoading } = useQuery(schemaQueryOptions(isEdit ? id : undefined, queryClient))
 
-  const { data: allSchemas = [] } = useQuery({
-    queryKey: ['schemas'],
-    queryFn: () => apiGet<{ data: Schema[] }>('/api/schemas').then((r) => r.data)
-  })
+  const { data: allSchemas = [] } = useQuery(schemasQueryOptions())
 
   const {
     register,
@@ -100,8 +90,9 @@ export default function SchemaFormPage() {
         displayName: values.displayName,
         fields: values.fields.map((f, i) => ({ ...f, position: i }))
       }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['schemas'] })
+    onSuccess: (newSchema) => {
+      queryClient.setQueryData<Schema[]>(queryKeys.schemas, (prev = []) => [...prev, newSchema])
+      queryClient.setQueryData(queryKeys.schema(newSchema.id), newSchema)
       navigate('/schemas')
     }
   })
@@ -142,7 +133,7 @@ export default function SchemaFormPage() {
     applyMutation.mutate(body, {
       onSuccess: (result) => {
         setShowModal(false)
-        queryClient.invalidateQueries({ queryKey: ['schemas'] })
+        queryClient.invalidateQueries({ queryKey: queryKeys.schemas, exact: true })
 
         const plan = result.plan
         if (plan.summary.manual > 0) {

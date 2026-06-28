@@ -8,6 +8,8 @@ import { BrowserRouter } from 'react-router-dom'
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
+      retry: 1,
+      refetchOnWindowFocus: false,
       staleTime: 30_000 // socket invalidates on mutations; 30s covers navigation flicker
     }
   }

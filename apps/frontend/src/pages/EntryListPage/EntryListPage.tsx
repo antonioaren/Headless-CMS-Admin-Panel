@@ -1,4 +1,5 @@
-import { apiGet, deleteEntry, listEntries } from '@/lib/api'
+import { deleteEntry } from '@/lib/api'
+import { entriesQueryOptions, queryKeys, schemaQueryOptions } from '@/lib/queries'
 import type { Entry, Field, Schema } from '@cms/shared'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useNavigate, useParams } from 'react-router-dom'
@@ -30,30 +31,18 @@ export default function EntryListPage() {
   const queryClient = useQueryClient()
 
   // Fetch schema to get displayName, slug, and fields
-  const { data: schema, isLoading: schemaLoading } = useQuery({
-    queryKey: ['schema', schemaId],
-    queryFn: () =>
-      apiGet<{ data: Schema[] }>('/api/schemas').then((r) => {
-        const list = r.data as unknown as Schema[]
-        return list.find((s) => s.id === schemaId) ?? null
-      }),
-    enabled: !!schemaId
-  })
+  const { data: schema, isLoading: schemaLoading } = useQuery(schemaQueryOptions(schemaId, queryClient))
 
   const {
     data: entryList = [],
     isLoading: entriesLoading,
     isError: entriesError
-  } = useQuery({
-    queryKey: ['entries', schemaId],
-    queryFn: () => (schema ? listEntries(schema.slug) : Promise.resolve([])),
-    enabled: !!schema
-  })
+  } = useQuery(entriesQueryOptions(schemaId))
 
   const deleteMutation = useMutation({
     mutationFn: (id: string) => deleteEntry(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['entries', schemaId] })
+      queryClient.invalidateQueries({ queryKey: queryKeys.entries(schemaId as string) })
     }
   })
 

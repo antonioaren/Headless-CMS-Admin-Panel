@@ -1,5 +1,6 @@
 import { EntryForm } from '@/components/EntryForm/EntryForm'
-import { apiGet, createEntry, getEntry, updateEntry } from '@/lib/api'
+import { createEntry, updateEntry } from '@/lib/api'
+import { entryQueryOptions, queryKeys, schemaQueryOptions } from '@/lib/queries'
 import type { EntryData, Schema } from '@cms/shared'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useEffect, useRef, useState } from 'react'
@@ -12,15 +13,7 @@ export default function EntryFormPage() {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
 
-  const { data: schema, isLoading: schemaLoading } = useQuery({
-    queryKey: ['schema', schemaId],
-    queryFn: () =>
-      apiGet<{ data: Schema[] }>('/api/schemas').then((r) => {
-        const list = r.data as unknown as Schema[]
-        return list.find((s) => s.id === schemaId) ?? null
-      }),
-    enabled: !!schemaId
-  })
+  const { data: schema, isLoading: schemaLoading } = useQuery(schemaQueryOptions(schemaId, queryClient))
 
   const renderedSchemaVersionRef = useRef<number | null>(null)
   const [isSchemaStale, setIsSchemaStale] = useState(false)
@@ -42,16 +35,14 @@ export default function EntryFormPage() {
     setIsSchemaStale(false)
   }
 
-  const { data: existingEntry, isLoading: entryLoading } = useQuery({
-    queryKey: ['entry', entryId],
-    queryFn: () => getEntry(entryId as string),
-    enabled: isEdit
-  })
+  const { data: existingEntry, isLoading: entryLoading } = useQuery(
+    entryQueryOptions(schemaId, isEdit ? entryId : undefined, queryClient)
+  )
 
   const createMutation = useMutation({
     mutationFn: (data: EntryData) => createEntry(schemaId as string, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['entries', schemaId] })
+      queryClient.invalidateQueries({ queryKey: queryKeys.entries(schemaId as string) })
       navigate(`/schemas/${schemaId}/entries`)
     }
   })
@@ -59,8 +50,8 @@ export default function EntryFormPage() {
   const updateMutation = useMutation({
     mutationFn: (data: EntryData) => updateEntry(entryId as string, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['entries', schemaId] })
-      queryClient.invalidateQueries({ queryKey: ['entry', entryId] })
+      queryClient.invalidateQueries({ queryKey: queryKeys.entries(schemaId as string) })
+      queryClient.invalidateQueries({ queryKey: queryKeys.entry(schemaId as string, entryId as string) })
       navigate(`/schemas/${schemaId}/entries`)
     }
   })

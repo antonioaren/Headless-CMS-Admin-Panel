@@ -73,6 +73,23 @@ const schemasRoutes: FastifyPluginAsync = async (fastify) => {
     }
   })
 
+  // GET /api/schemas/:id
+  fastify.get('/schemas/:id', async (req, reply) => {
+    const { id } = req.params as { id: string }
+
+    try {
+      const data = await fetchSchemaWithFields(db, id)
+      if (!data) {
+        return reply.status(404).send({ error: 'Schema not found' })
+      }
+
+      return reply.send({ data })
+    } catch (err) {
+      fastify.log.error(err)
+      return reply.status(500).send({ error: 'Failed to fetch schema' })
+    }
+  })
+
   // POST /api/schemas
   fastify.post('/schemas', async (req, reply) => {
     const parsed = createBodySchema.safeParse(req.body)
@@ -102,13 +119,7 @@ const schemasRoutes: FastifyPluginAsync = async (fastify) => {
           await tx.insert(fields).values(fieldRows)
         }
 
-        const insertedFields = await tx
-          .select()
-          .from(fields)
-          .where(eq(fields.schemaId, schema.id))
-          .orderBy(asc(fields.position))
-
-        return { ...schema, fields: insertedFields }
+        return { ...schema, fields: [...fieldRows].sort((a, b) => a.position - b.position) }
       })
 
       emit('schema.created', { id: result.id, schemaId: result.id, version: result.version })

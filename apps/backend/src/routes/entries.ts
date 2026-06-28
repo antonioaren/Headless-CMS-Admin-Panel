@@ -6,11 +6,16 @@ import { asc, eq } from 'drizzle-orm'
 import type { FastifyPluginAsync } from 'fastify'
 
 const entriesRoutes: FastifyPluginAsync = async (fastify) => {
-  // GET /api/entries?schema=:slug
+  // GET /api/entries?schema=:slug or schemaId=:id
   fastify.get('/entries', async (req, reply) => {
-    const { schema: slug } = req.query as { schema?: string }
+    const { schema: slug, schemaId } = req.query as { schema?: string; schemaId?: string }
 
     try {
+      if (schemaId) {
+        const schemaEntries = await db.select().from(entries).where(eq(entries.schemaId, schemaId))
+        return reply.send({ data: schemaEntries })
+      }
+
       if (slug) {
         const [schema] = await db.select().from(schemas).where(eq(schemas.slug, slug))
         if (!schema) {
