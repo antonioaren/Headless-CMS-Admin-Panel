@@ -19,9 +19,12 @@ await app.register(entriesRoutes, { prefix: '/api' })
 await app.register(contentRoutes, { prefix: '/api' })
 await app.register(migrationsRoutes, { prefix: '/api' })
 
-await app.listen({ port: env.PORT, host: '0.0.0.0' })
-
-// socket.io shares the Fastify HTTP server. Emits only after successful DB writes; payloads stay thin.
+// socket.io shares the Fastify HTTP server. It MUST be attached before app.listen():
+// attaching after the server is already listening makes engine.io register its
+// upgrade handler too late, so the browser's WebSocket upgrade probe is dropped and
+// the client is stuck on HTTP long-polling forever. Emits only after successful DB
+// writes; payloads stay thin.
+await app.ready()
 const io = new SocketServer(app.server, { cors: { origin: env.CORS_ORIGIN } })
 
 initRealtime(io)
@@ -29,3 +32,5 @@ initRealtime(io)
 io.on('connection', (socket) => {
   app.log.info({ id: socket.id }, 'socket connected')
 })
+
+await app.listen({ port: env.PORT, host: '0.0.0.0' })
